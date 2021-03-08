@@ -1,26 +1,29 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
+
 const app = express();
 app.use(express.json());
 // app.use(morgan("tiny"));
+app.use(cors());
 morgan.token('type', function (req, res) { return JSON.stringify(req.body); });
 app.use (morgan(`:method :url :status :res[content-length] - :response-time ms :type`));
 let notes = [
     {
         id: 1,
         name: "HTML is easy",
-       phone: "23031",
+        number: "23031",
         
     },
     {
         id: 2,
         name: "HTML is easy",
-       phone: "20098",
+        number: "20098",
     },
     {
         id: 3,
         name: "HTM",
-        phone: "2019053",
+        number: "2019053",
     }
 ];
 
@@ -82,7 +85,7 @@ app.delete("/api/persons/:id" , (req,res)=>{
 app.post("/api/persons" , (req , res)=>{
     const names = notes.map((note)=>note.name);
     const content = req.body;
-    if(!(content.phone && content.name)){
+    if(!(content.number && content.name)){
         return res.status(406).send("err: name && phone canot be empty");
     }else if(names.includes(content.name)){
         return res.status(406).send("err: name is allredy exist"); 
@@ -90,7 +93,7 @@ app.post("/api/persons" , (req , res)=>{
         const newPerson = {
             id: generateId2(notes) ,
             name: content.name ,
-            phone:content.phone
+            number:content.number
         };
         notes = notes.concat(newPerson);
         return res.json(newPerson); 
@@ -98,7 +101,7 @@ app.post("/api/persons" , (req , res)=>{
     
 
 });
-
-app.listen(3001 , ()=>{
-    console.log("listening on 3001");
+const PORT = process.env.PORT||3001;
+app.listen(PORT , ()=>{
+    console.log(`listening on ${PORT}`);
 });
