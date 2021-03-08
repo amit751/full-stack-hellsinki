@@ -41,7 +41,24 @@ app.get("/api/persons/:id" , (req , res)=>{
         return res.status(404).send("not found");
     }
     return res.json(note);
-})
+});
+app.delete("/api/persons/:id" , (req,res)=>{
+    const id = req.params.id;
+    console.log(id);
+    const note = notes.find((item)=>{
+        return item.id === Number(id);
+    });
+    if(!note){
+        console.log(note);
+        return res.status(204).send("allready deleted/ not found");
+    }else{
+        notes = notes.filter((item)=>{
+            return item !== note;
+        });
+        console.log(notes);
+        return res.send(`the new arrey: ${JSON.stringify(notes)} `);
+    }
+});
 
 app.listen(3001 , ()=>{
     console.log("listening on 3001");
