@@ -44,18 +44,18 @@ app.get("/api/persons/:id" , (req , res)=>{
 });
 app.delete("/api/persons/:id" , (req,res)=>{
     const id = req.params.id;
-    console.log(id);
+    
     const note = notes.find((item)=>{
         return item.id === Number(id);
     });
     if(!note){
-        console.log(note);
+        
         return res.status(204).send("allready deleted/ not found");
     }else{
         notes = notes.filter((item)=>{
             return item !== note;
         });
-        console.log(notes);
+        
         return res.send(`the new arrey: ${JSON.stringify(notes)} `);
     }
 });
