@@ -5,6 +5,7 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 // app.use(morgan("tiny"));
+app.use(express.static("./build"));
 app.use(cors());
 morgan.token('type', function (req, res) { return JSON.stringify(req.body); });
 app.use (morgan(`:method :url :status :res[content-length] - :response-time ms :type`));
@@ -27,7 +28,9 @@ let notes = [
     }
 ];
 
-
+app.get("/" , (req ,res)=>{
+    res.sendFile("./index.html");
+});
 app.get("/api/persons" , (req , res)=>{
     console.log("get");
     return  res.json(notes);
