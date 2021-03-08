@@ -4,21 +4,19 @@ app.use(express.json());
 let notes = [
     {
         id: 1,
-        content: "HTML is easy",
-        date: "2019-05-30T17:30:31.098Z",
-        important: true
+        name: "HTML is easy",
+       phone: "23031",
+        
     },
     {
         id: 2,
-        content: "Browser can execute only Javascript",
-      date: "2019-05-30T18:39:34.091Z",
-      important: false
+        name: "HTML is easy",
+       phone: "20098",
     },
     {
         id: 3,
-        content: "GET and POST are the most important methods of HTTP protocol",
-        date: "2019-05-30T19:20:14.298Z",
-        important: true
+        name: "HTM",
+        phone: "2019053",
     }
 ];
 
@@ -58,6 +56,43 @@ app.delete("/api/persons/:id" , (req,res)=>{
         
         return res.send(`the new arrey: ${JSON.stringify(notes)} `);
     }
+});
+ function generateId1(notes){
+    const IDS = notes.map((note)=>{
+        return note.id
+    });
+    maxID = Math.max(IDS);
+    return maxID+1;
+ }
+
+ function generateId2(notes){
+    const IDS = notes.map((note)=>{
+        return note.id;
+    });
+    let newID;
+    do{
+        newID = Math.round(Math.random()*1000);
+    }while(IDS.includes(newID));
+    return newID;
+}
+app.post("/api/persons" , (req , res)=>{
+    const names = notes.map((note)=>note.name);
+    const content = req.body;
+    if(!(content.phone && content.name)){
+        return res.status(406).send("err: name && phone canot be empty");
+    }else if(names.includes(content.name)){
+        return res.status(406).send("err: name is allredy exist"); 
+    }else{
+        const newPerson = {
+            id: generateId2(notes) ,
+            name: content.name ,
+            phone:content.phone
+        };
+        notes = notes.concat(newPerson);
+        return res.json(newPerson); 
+    }
+    
+
 });
 
 app.listen(3001 , ()=>{
