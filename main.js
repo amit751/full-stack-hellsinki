@@ -1,15 +1,53 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 
 const app = express();
 app.use(express.json());
-// app.use(morgan("tiny"));
 app.use(express.static("./build"));
 app.use(cors());
 morgan.token('type', function (req, res) { return JSON.stringify(req.body); });
 app.use (morgan(`:method :url :status :res[content-length] - :response-time ms :type`));
+
+
+const arguments = process.argv.length;
+const password = process.argv[2];
+const url =
+    `mongodb+srv://firsttime-user:${password}@cluster0.dpj5m.mongodb.net/phoneNUMBER-app?retryWrites=true&w=majority`;
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true });
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: String,
+})
+const Person = mongoose.model('Person', personSchema);
+personSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+      returnedObject.id = returnedObject._id.toString();
+      delete returnedObject._id;
+      delete returnedObject.__v;
+    }
+});
+
+app.get("/api/persons" , (req ,res)=>{
+    Person.find({}).then((result)=>{
+        mongoose.connection.close();
+       return res.json(result);
+    }).catch((e)=>{
+        console.log(e);
+    });
+});
+
+
+
+
+
+
+
+
+
+
 let notes = [
     {
         id: 1,
@@ -32,10 +70,10 @@ let notes = [
 app.get("/" , (req ,res)=>{
     res.sendFile("./index.html");
 });
-app.get("/api/persons" , (req , res)=>{
-    console.log("get");
-    return  res.json(notes);
-});
+// app.get("/api/persons" , (req , res)=>{
+//     console.log("get");
+//     return  res.json(notes);
+// });
 
 app.get("/api/info" , (req ,res)=>{
     const personsCount = notes.length;
