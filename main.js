@@ -28,51 +28,18 @@ app.get("/api/persons" , (req ,res)=>{
 });
 
 
-
-
-
-
-
-
-
-
-let notes = [
-    {
-        id: 1,
-        name: "HTML is easy",
-        number: "23031",
-        
-    },
-    {
-        id: 2,
-        name: "HTML is easy",
-        number: "20098",
-    },
-    {
-        id: 3,
-        name: "HTM",
-        number: "2019053",
-    }
-];
-
-
-// app.get("/api/persons" , (req , res)=>{
-//     console.log("get");
-//     return  res.json(notes);
-// });
-
-// app.get("/api/info" , (req ,res)=>{
-//     const personsCount = notes.length;
-//     return res.send(`<p>phonebook has info for ${personsCount} persons</p></n><p>${new Date}</p>`);
-// });
 app.get("/api/persons/:id" , (req , res)=>{
     const id = req.params.id;
     Person.findById(id).then(person => {
-        console.log(person);
-       return res.json(person);
+        if(!person){
+            return res.status(404).send("couldnt get the person" , e); 
+        }else{
+            return res.json(person);
+
+        }
     }).catch((e)=>{
         console.log("find by id fails" , e);
-        return res.status(404).send("couldnt get the person" , e);
+        return res.status(400).json({messeage:'malformatted id', error: e , reason: e.reason});
     })  
 
 });
@@ -93,6 +60,51 @@ app.delete("/api/persons/:id" , (req,res)=>{
         return res.send(`the new arrey: ${JSON.stringify(notes)} `);
     }
 });
+
+app.post("/api/persons" , (req , res)=>{
+   const data = req.body;
+   
+   if(!(data.number && data.name)){
+    
+    return res.status(406).send("err: name && phone canot be empty");
+   }else{
+        const person = new Person({
+            name: data.name,
+            number: data.number,
+        });
+        person.save().then(result => {
+            console.log(` added ${person.name} , number: ${person.number} to phonebook`);
+            return res.json(result);
+        }).catch((e)=>{
+            console.log("wile saving to data" , e);
+            return res.json(e);
+        });
+    } 
+    
+
+});
+const PORT = process.env.PORT||3001;
+app.listen(PORT , ()=>{
+    console.log(`listening on ${PORT}`);
+});
+
+const dbPath = "mongodb+srv://firsttime-user:<password>@cluster0.dpj5m.mongodb.net/phoneNUMBER-app?retryWrites=true&w=majority";
+
+
+
+
+
+
+
+
+
+
+
+
+// app.get("/api/info" , (req ,res)=>{
+//     const personsCount = notes.length;
+//     return res.send(`<p>phonebook has info for ${personsCount} persons</p></n><p>${new Date}</p>`);
+// });
 function generateId1(notes){
     const IDS = notes.map((note)=>{
         return note.id
@@ -111,53 +123,3 @@ function generateId2(notes){
     }while(IDS.includes(newID));
     return newID;
 }
-app.post("/api/persons" , (req , res)=>{
-   const data = req.body;
-   console.log(data);
-   if(!(data.number && data.name)){
-    console.log(data.name); 
-    console.log(data.number); 
-    return res.status(406).send("err: name && phone canot be empty");
-   }else{
-    const person = new Person({
-        name: data.name,
-        number: data.number,
-    });
-    person.save().then(result => {
-        console.log(` added ${person.name} , number: ${person.number} to phonebook`);
-        return res.json(result);
-    }).catch((e)=>{
-        console.log("wile saving to data" , e);
-        return res.json(e);
-    });
-   } 
-    
-    
-    
-    
-    
-    
-    // const names = notes.map((note)=>note.name);
-    // const content = req.body;
-    // if(!(content.number && content.name)){
-    //     return res.status(406).send("err: name && phone canot be empty");
-    // }else if(names.includes(content.name)){
-    //     return res.status(406).send("err: name is allredy exist"); 
-    // }else{
-    //     const newPerson = {
-    //         id: generateId2(notes) ,
-    //         name: content.name ,
-    //         number:content.number
-    //     };
-    //     notes = notes.concat(newPerson);
-    //     return res.json(newPerson); 
-    // }
-    
-
-});
-const PORT = process.env.PORT||3001;
-app.listen(PORT , ()=>{
-    console.log(`listening on ${PORT}`);
-});
-
-const dbPath = "mongodb+srv://firsttime-user:<password>@cluster0.dpj5m.mongodb.net/phoneNUMBER-app?retryWrites=true&w=majority";
