@@ -1,8 +1,11 @@
+
+require('dotenv').config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const mongoose = require("mongoose");
+const Person = require("./modules/person.js");
 
+const mongoose = require("mongoose");
 
 const app = express();
 app.use(express.json());
@@ -12,28 +15,11 @@ morgan.token('type', function (req, res) { return JSON.stringify(req.body); });
 app.use (morgan(`:method :url :status :res[content-length] - :response-time ms :type`));
 
 
-const arguments = process.argv.length;
-const password = process.argv[2];
-const url =
-    `mongodb+srv://firsttime-user:${password}@cluster0.dpj5m.mongodb.net/phoneNUMBER-app?retryWrites=true&w=majority`;
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true });
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-})
-const Person = mongoose.model('Person', personSchema);
-personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-      returnedObject.id = returnedObject._id.toString();
-      delete returnedObject._id;
-      delete returnedObject.__v;
-    }
-});
+
 
 app.get("/api/persons" , (req ,res)=>{
     Person.find({}).then((result)=>{
-        mongoose.connection.close();
-       return res.json(result);
+    return res.json(result);
     }).catch((e)=>{
         console.log(e);
     });
