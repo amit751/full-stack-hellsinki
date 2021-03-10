@@ -6,6 +6,7 @@ const cors = require("cors");
 const Person = require("./modules/person.js");
 
 const mongoose = require("mongoose");
+const { response } = require('express');
 
 const app = express();
 app.use(express.json());
@@ -45,20 +46,15 @@ app.get("/api/persons/:id" , (req , res)=>{
 });
 app.delete("/api/persons/:id" , (req,res)=>{
     const id = req.params.id;
-    
-    const note = notes.find((item)=>{
-        return item.id === Number(id);
+    Person.findByIdAndRemove(id)
+    .then(result => {
+      return res.status(204).send("deleted");
+    })
+    .catch((error) => {
+     console.log(error);
+     return res.status(500).send("eror wile deliting");
     });
-    if(!note){
-        
-        return res.status(204).send("allready deleted/ not found");
-    }else{
-        notes = notes.filter((item)=>{
-            return item !== note;
-        });
-        
-        return res.send(`the new arrey: ${JSON.stringify(notes)} `);
-    }
+
 });
 
 app.post("/api/persons" , (req , res)=>{
@@ -83,6 +79,23 @@ app.post("/api/persons" , (req , res)=>{
     
 
 });
+app.put( "/api/persons/:id" , (req,res)=>{
+    const id = req.params.id;
+    const body = req.body;
+    const person = {number: body.number };
+    Person.findByIdAndUpdate(id , person ,{ new: true })
+    .then((updatedPerson)=>{
+        return res.json(updatedPerson);
+    }).catch((e)=>{
+        console.log(e, "failed to update to db");
+        return res.status(500).json({error: e , messeage:"failed to update to db"  });
+    });
+});
+
+
+
+
+
 const PORT = process.env.PORT||3001;
 app.listen(PORT , ()=>{
     console.log(`listening on ${PORT}`);
